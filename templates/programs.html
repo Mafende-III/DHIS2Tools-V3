@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Program</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body style="background-color: #f0f8ff;">
+    <div class="container">
+        <h1 class="mt-5 mb-3" style="color: #007bff;">Select Program</h1>
+        <form method="POST" action="{{ url_for('programs') }}">
+            <div class="form-group">
+                <label for="program">Programs:</label>
+                <select class="form-control" id="program" name="program">
+                    {% for program_name, program_id in programs.items() %}
+                    <option value="{{ program_id }}">{{ program_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <input type="hidden" name="url" value="{{ request.form['url'] }}">
+            <input type="hidden" name="username" value="{{ request.form['username'] }}">
+            <input type="hidden" name="password" value="{{ request.form['password'] }}">
+            <button type="submit" class="btn btn-primary">Next</button>
+        </form>
+    </div>
+    <footer class="text-center mt-5">
+        <p>Powered By Blaise Mafende and ChatGPT</p>
+    </footer>
+</body>
+</html>

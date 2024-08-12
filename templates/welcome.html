@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1>Welcome to DHIS2 Tools 4 Implementers</h1>
+    <p>Please submit your tool requests or access the available tools below.</p>
+    
+    <form action="{{ url_for('tools.index') }}">
+        <button type="submit" class="btn btn-primary">Access Tools</button>
+    </form>
+
+    <h2 class="mt-5">Submit Tool Request</h2>
+    <form action="mailto:kk426st@gmail.com" method="post" enctype="text/plain">
+        <div class="form-group">
+            <textarea class="form-control" name="body" rows="10" placeholder="Type your request here (up to 5000 words)"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary">Submit Request</button>
+    </form>
+</div>
+{% endblock %}

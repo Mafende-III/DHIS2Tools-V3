@@ -1,0 +1,162 @@
+/* General Body Styling */
+body {
+    background-color: #e3f2fd; /* Light blue background */
+    font-family: Arial, sans-serif; /* Clean, readable font */
+    margin: 0;
+    padding: 0;
+}
+
+/* Container Styling */
+.container {
+    margin-top: 50px;
+    max-width: 800px; /* Limit container width for better readability */
+    padding: 15px;
+    background-color: #ffffff; /* White background for content area */
+    border-radius: 8px; /* Smooth corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+/* Navbar Styling */
+.navbar {
+    background-color: #0288d1; /* Primary theme color */
+}
+
+.navbar-brand {
+    color: #ffffff !important;
+    font-weight: bold;
+}
+
+.nav-link {
+    color: #ffffff !important;
+}
+
+.nav-link:hover {
+    color: #b3e5fc !important; /* Lighter blue on hover */
+}
+
+/* Primary Button Styling */
+.btn-primary {
+    background-color: #0288d1;
+    border-color: #0288d1;
+    color: #ffffff; /* Ensure button text is white */
+}
+
+.btn-primary:hover {
+    background-color: #0277bd;
+    border-color: #0277bd;
+}
+
+/* Secondary Button Styling */
+.btn-secondary {
+    background-color: #b0bec5;
+    border-color: #b0bec5;
+    color: #000000; /* Ensure button text is black for contrast */
+}
+
+.btn-secondary:hover {
+    background-color: #9e9e9e;
+    border-color: #9e9e9e;
+}
+
+/* Form Checkboxes and Labels */
+.form-check-input:checked {
+    background-color: #0288d1; /* Match theme color */
+    border-color: #0288d1; /* Match theme color */
+}
+
+.form-check-label {
+    margin-left: 0.5rem; /* Ensure spacing between checkbox and label */
+}
+
+/* Page Headings */
+h1, h2, h3 {
+    color: #01579b; /* Darker blue for headings */
+}
+
+/* Links Styling */
+a {
+    color: #0288d1;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #0277bd;
+    text-decoration: underline;
+}
+
+/* Footer Styling */
+footer {
+    background-color: #0288d1;
+    color: #ffffff;
+    padding: 15px 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
+    margin-top: 30px;
+    text-align: center;
+}
+
+footer p {
+    margin: 0;
+}
+
+/* Utility Classes */
+.text-center {
+    text-align: center;
+}
+
+.mt-5 {
+    margin-top: 3rem;
+}
+
+.mb-4 {
+    margin-bottom: 1.5rem;
+}
+
+.mb-2 {
+    margin-bottom: 0.5rem;
+}
+
+/* Specific Page Styling */
+/* Styling for Extract Data Page */
+.extract-form-group {
+    margin-bottom: 20px;
+}
+
+/* Styling for Tool Request Page */
+.tool-request {
+    margin-top: 20px;
+}
+
+/* Styling for Statistics on Tools Page */
+.statistics-card {
+    padding: 15px;
+    background-color: #e1f5fe; /* Lighter blue background */
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.statistics-card h3 {
+    color: #01579b; /* Darker blue for headings */
+}
+
+.statistics-card p {
+    color: #0288d1; /* Primary theme color */
+}
+
+/* Additional Styles for Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        max-width: 100%;
+        padding: 10px;
+    }
+
+    .navbar-brand, .nav-link {
+        font-size: 14px;
+    }
+
+    footer {
+        font-size: 14px;
+    }
+}

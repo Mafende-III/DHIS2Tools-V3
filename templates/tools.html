@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="header">
+    <a href="{{ url_for('welcome') }}" class="btn btn-light">Back to Welcome</a>
+    <h1>DHIS2 Tools 4 Implementers</h1>
+    <a href="#" id="mail-dialog-button" class="btn btn-light">Submit Tool Request</a>
+</div>
+
+<div class="container">
+    <h2 class="mt-5 mb-4">Available Tools</h2>
+    <div class="row">
+        <div class="col-md-4">
+            <div class="tool-card">
+                <h3>DHIS2 Metadata Extractor</h3>
+                <p>Extract program attributes, stages, data elements, program indicators, and option sets from DHIS2.</p>
+                <button class="btn btn-primary use-tool-button" onclick="window.location.href='{{ url_for('metadata_extractor.index') }}'">Use Tool</button>
+            </div>
+        </div>
+        <!-- Additional tool cards can be added here if needed -->
+    </div>
+
+    <!-- Statistics Section -->
+    <div class="row">
+        <div class="col-md-4">
+            <div class="statistics">
+                <h4>Usage Statistics</h4>
+                <p id="total-extractions">Total Extractions: <span id="total-count">0</span></p>
+                <p id="last-extraction">Last Extraction Date: <span id="last-date">N/A</span></p>
+                <p id="period-extractions">Extractions This Period: <span id="period-count">0</span></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="back-button">
+        <a href="{{ url_for('welcome') }}" class="btn btn-secondary">Back to Welcome</a>
+    </div>
+</div>
+
+<div id="mail-dialog" class="mail-dialog">
+    <h3>Submit Tool Request</h3>
+    <textarea id="mail-content" rows="10" style="width: 100%; padding: 10px; border: 1px solid #0288d1; border-radius: 5px;"></textarea>
+    <button onclick="submitRequest()" class="btn btn-primary mt-3">Submit</button>
+    <button onclick="closeDialog()" class="btn btn-secondary mt-3">Cancel</button>
+</div>
+
+<script>
+    document.getElementById('mail-dialog-button').addEventListener('click', function() {
+        document.getElementById('mail-dialog').style.display = 'block';
+    });
+
+    function submitRequest() {
+        const content = document.getElementById('mail-content').value;
+        fetch('{{ url_for('tools.submit_request') }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `content=${encodeURIComponent(content)}`
+        })
+        .then(response => {
+            if (response.ok) {
+                alert('Request submitted successfully.');
+                closeDialog();
+            } else {
+                alert('Failed to submit request.');
+            }
+        })
+        .catch(error => alert('Error: ' + error));
+    }
+
+    function closeDialog() {
+        document.getElementById('mail-dialog').style.display = 'none';
+    }
+
+    // Function to fetch and update statistics
+    function updateStatistics() {
+        fetch('{{ url_for('tools.statistics') }}')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('total-count').textContent = data.total_count;
+                document.getElementById('last-date').textContent = data.last_date || 'N/A';
+                document.getElementById('period-count').textContent = data.period_count;
+            })
+            .catch(error => console.error('Error fetching statistics:', error));
+    }
+
+    // Update statistics when the page loads
+    window.onload = updateStatistics;
+</script>
+{% endblock %}

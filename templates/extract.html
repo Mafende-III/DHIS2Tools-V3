@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container">
+    <h1 class="text-center mb-4">DHIS2 Metadata Extractor</h1>
+    <form method="post" action="{{ url_for('extract.extract_metadata') }}">
+        <!-- DHIS2 URL and Credentials -->
+        <div class="extract-form-group">
+            <label for="dhis2_url">DHIS2 URL:</label>
+            <input type="text" class="form-control" id="dhis2_url" name="dhis2_url" required>
+        </div>
+        <div class="extract-form-group">
+            <label for="username">Username:</label>
+            <input type="text" class="form-control" id="username" name="username" required>
+        </div>
+        <div class="extract-form-group">
+            <label for="password">Password:</label>
+            <input type="password" class="form-control" id="password" name="password" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Login</button>
+    </form>
+
+    <div class="mt-5">
+        {% if programs %}
+        <form method="post" action="{{ url_for('extract.confirm_selection') }}">
+            <!-- Program Selection -->
+            <div class="extract-form-group">
+                <label for="programs">Select Program:</label>
+                <select class="form-control" id="programs" name="program" required>
+                    {% for program in programs %}
+                    <option value="{{ program['id'] }}">{{ program['name'] }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <!-- Metadata Type Selection -->
+            <div class="extract-form-group">
+                <label>Select Metadata for Extraction:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="attributes" id="attributes" name="metadata_types">
+                    <label class="form-check-label" for="attributes">Attributes</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="data_elements" id="data_elements" name="metadata_types">
+                    <label class="form-check-label" for="data_elements">Data Elements</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="program_indicators" id="program_indicators" name="metadata_types">
+                    <label class="form-check-label" for="program_indicators">Program Indicators</label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="option_sets" id="option_sets" name="metadata_types">
+                    <label class="form-check-label" for="option_sets">Option Sets</label>
+                </div>
+            </div>
+
+            <!-- Stage Selection -->
+            <div id="stages_section" class="extract-form-group" style="display: none;">
+                <label for="stages">Select Stages (for Data Elements):</label>
+                <div class="form-check">
+                    {% for stage in stages %}
+                    <input class="form-check-input" type="checkbox" value="{{ stage['id'] }}" id="stage_{{ stage['id'] }}" name="stages">
+                    <label class="form-check-label" for="stage_{{ stage['id'] }}">{{ stage['name'] }}</label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Confirm Selection</button>
+        </form>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+// Show/Hide the stages section based on Data Elements checkbox
+document.getElementById('data_elements').addEventListener('change', function() {
+    const stagesSection = document.getElementById('stages_section');
+    if (this.checked) {
+        stagesSection.style.display = 'block';
+    } else {
+        stagesSection.style.display = 'none';
+    }
+});
+</script>
+{% endblock %}
