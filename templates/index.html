@@ -1,34 +1,226 @@
-{% extends "base.html" %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DHIS2 Metadata Extractor</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #D8EDF4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            padding: 20px;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #0099CC;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            border-top: 2px solid #0099CC;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            box-sizing: border-box;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #0099CC;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .form-group button:hover {
+            background-color: #007AB8;
+        }
+        .error {
+            color: red;
+        }
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+        .checkbox-wrapper input[type="checkbox"] {
+            margin-right: 10px;
+        }
+        .selected-icon {
+            display: none;
+            margin-left: 10px;
+        }
+        .checkbox-wrapper input[type="checkbox"]:checked + .selected-icon {
+            display: inline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>DHIS2 Metadata Extractor</h1>
+        </div>
+        <div id="login-section">
+            <h2>Login</h2>
+            <div class="form-group">
+                <label for="url">DHIS2 URL:</label>
+                <input type="text" id="url" name="url" required>
+            </div>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+            </div>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+            </div>
+            <div class="form-group">
+                <button onclick="login()">Log In</button>
+            </div>
+            <div id="program-section" style="display:none;">
+                <h2>Select Program</h2>
+                <div class="form-group">
+                    <label for="program">Program:</label>
+                    <select id="program" name="program"></select>
+                </div>
+                <div id="stage-section" style="display:none;">
+                    <h2>Select Program Stages</h2>
+                    <div id="stages"></div>
+                </div>
+                <div class="form-group">
+                    <button onclick="extractData()">Extract Data</button>
+                </div>
+            </div>
+        </div>
+        <div class="footer">
+            Powered by Blaise Mafende and ChatGPT
+        </div>
+    </div>
+    <script>
+        function login() {
+            const url = document.getElementById('url').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
 
-{% block content %}
-<div class="container text-center">
-    <h1 class="mb-4">Welcome to DHIS2 Tools</h1>
-    <p class="lead">Your one-stop solution for managing and extracting metadata from DHIS2.</p>
-    
-    <!-- Navigation Buttons -->
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-4 mb-3">
-            <a href="{{ url_for('tools') }}" class="btn btn-primary btn-lg btn-block">
-                <i class="fas fa-tools"></i> Go to Tools
-            </a>
-        </div>
-        <div class="col-md-4 mb-3">
-            <a href="{{ url_for('statistics') }}" class="btn btn-secondary btn-lg btn-block">
-                <i class="fas fa-chart-bar"></i> View Usage Statistics
-            </a>
-        </div>
-    </div>
-    
-    <!-- Additional Information or Welcome Message -->
-    <div class="mt-5">
-        <p>
-            Use the tools provided to extract essential metadata from DHIS2, including program attributes, data elements, program indicators, and option sets.
-            If you are new here, start by exploring the tools section where you can begin the extraction process.
-        </p>
-        <p>
-            To keep track of how often these tools are used, visit the usage statistics section.
-            We hope these tools simplify your data management tasks.
-        </p>
-    </div>
-</div>
-{% endblock %}
+            fetch('/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    const programSelect = document.getElementById('program');
+                    programSelect.innerHTML = '';
+                    for (const [name, id] of Object.entries(data)) {
+                        const option = document.createElement('option');
+                        option.value = id;
+                        option.textContent = name;
+                        programSelect.appendChild(option);
+                    }
+                    document.getElementById('program-section').style.display = 'block';
+                }
+            })
+            .catch(error => alert(`Error: ${error}`));
+        }
+
+        function getStages(programId) {
+            const url = document.getElementById('url').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            fetch('/stages', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&program_id=${encodeURIComponent(programId)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert(`Error: ${data.error}`);
+                } else {
+                    const stagesDiv = document.getElementById('stages');
+                    stagesDiv.innerHTML = '';
+                    for (const [name, id] of Object.entries(data)) {
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'checkbox-wrapper';
+
+                        const checkbox = document.createElement('input');
+                        checkbox.type = 'checkbox';
+                        checkbox.value = id;
+                        checkbox.id = id;
+
+                        const label = document.createElement('label');
+                        label.htmlFor = id;
+                        label.textContent = name;
+
+                        const icon = document.createElement('span');
+                        icon.className = 'selected-icon';
+                        icon.textContent = '✓';  // Checkmark or any icon to represent selection
+
+                        wrapper.appendChild(checkbox);
+                        wrapper.appendChild(label);
+                        wrapper.appendChild(icon);
+
+                        stagesDiv.appendChild(wrapper);
+                    }
+                    document.getElementById('stage-section').style.display = 'block';
+                }
+            })
+            .catch(error => alert(`Error: ${error}`));
+        }
+
+        function extractData() {
+            const url = document.getElementById('url').value;
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const programId = document.getElementById('program').value;
+
+            const selectedStages = Array.from(document.querySelectorAll('#stages input[type="checkbox"]:checked'))
+                                        .map(checkbox => checkbox.value);
+
+            fetch('/extract', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `url=${encodeURIComponent(url)}&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}&program_id=${encodeURIComponent(programId)}&stage_ids[]=${selectedStages.join('&stage_ids[]=')}`
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.blob();
+                }
+                throw new Error('Network response was not ok.');
+            })
+            .then(blob => {
+                const link = document.createElement('a');
+                link.href = window.URL.createObjectURL(blob);
+                link.download = 'data.xlsx';
+                link.click();
+            })
+            .catch(error => alert(`Error: ${error}`));
+        }
+
+        document.getElementById('program').addEventListener('change', function() {
+            getStages(this.value);
+        });
+    </script>
+</body>
+</html>

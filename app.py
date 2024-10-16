@@ -5,7 +5,6 @@ import pandas as pd
 from io import BytesIO
 import sqlite3
 from datetime import datetime, timedelta
-from tools.metadata_extractor import metadata_extractor as metadata_extractor_blueprint
 
 app = Flask(__name__)
 
@@ -17,9 +16,6 @@ app.config['MAIL_PASSWORD'] = 'your-email-password'  # Replace with your email p
 app.config['MAIL_USE_TLS'] = True
 app.config['MAIL_USE_SSL'] = False
 mail = Mail(app)
-
-# Register Blueprints
-app.register_blueprint(metadata_extractor_blueprint, url_prefix='/metadata_extractor')
 
 def get_dhis2_data(url, username, password, endpoint, params=None):
     response = requests.get(f"{url}/api/{endpoint}", auth=(username, password), params=params)
@@ -139,9 +135,6 @@ def get_usage_statistics(tool_name):
         'period_count': period_extractions
     }
 
-@app.route('/')
-def index():
-    return render_template('index.html')
 @app.route('/')
 def welcome():
     return render_template('welcome.html')

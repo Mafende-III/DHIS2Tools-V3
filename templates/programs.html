@@ -4,28 +4,111 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Select Program</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 </head>
-<body style="background-color: #f0f8ff;">
-    <div class="container">
-        <h1 class="mt-5 mb-3" style="color: #007bff;">Select Program</h1>
-        <form method="POST" action="{{ url_for('programs') }}">
-            <div class="form-group">
-                <label for="program">Programs:</label>
-                <select class="form-control" id="program" name="program">
-                    {% for program_name, program_id in programs.items() %}
-                    <option value="{{ program_id }}">{{ program_name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <input type="hidden" name="url" value="{{ request.form['url'] }}">
-            <input type="hidden" name="username" value="{{ request.form['username'] }}">
-            <input type="hidden" name="password" value="{{ request.form['password'] }}">
-            <button type="submit" class="btn btn-primary">Next</button>
+<body>
+    <header>
+        <h1>Select Program</h1>
+    </header>
+    
+    <main>
+        <form id="programForm">
+            <label for="url">DHIS2 URL:</label>
+            <input type="text" id="url" name="url" required placeholder="https://your-dhis2-instance.org">
+            
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" required>
+            
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" required>
+            
+            <button type="button" id="loginButton">Login</button>
+            
+            <label for="program">Select Program:</label>
+            <select id="program" name="program" required>
+                <option value="">Select a program</option>
+            </select>
+            
+            <button type="button" id="fetchStagesButton">Fetch Stages</button>
         </form>
-    </div>
-    <footer class="text-center mt-5">
-        <p>Powered By Blaise Mafende and ChatGPT</p>
-    </footer>
+
+        <div id="stagesContainer" style="display:none;">
+            <h2>Select Stages</h2>
+            <form id="stagesForm">
+                <div id="stagesList"></div>
+                <button type="button" id="extractDataButton">Extract Data</button>
+            </form>
+        </div>
+        
+        <button onclick="window.location.href='/tools';">Go Back to Tools</button>
+    </main>
+
+    <script>
+        $(document).ready(function() {
+            $('#loginButton').click(function() {
+                const url = $('#url').val();
+                const username = $('#username').val();
+                const password = $('#password').val();
+                
+                $.post('/login', { url, username, password }, function(data) {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        $('#program').empty().append('<option value="">Select a program</option>');
+                        $.each(data, function(name, id) {
+                            $('#program').append(`<option value="${id}">${name}</option>`);
+                        });
+                    }
+                });
+            });
+
+            $('#fetchStagesButton').click(function() {
+                const url = $('#url').val();
+                const username = $('#username').val();
+                const password = $('#password').val();
+                const programId = $('#program').val();
+                
+                $.post('/stages', { url, username, password, program_id: programId }, function(data) {
+                    if (data.error) {
+                        alert('Error: ' + data.error);
+                    } else {
+                        $('#stagesList').empty();
+                        $.each(data, function(name, id) {
+                            $('#stagesList').append(`
+                                <div>
+                                    <input type="checkbox" name="stage_ids[]" value="${id}" id="stage_${id}">
+                                    <label for="stage_${id}">${name}</label>
+                                </div>
+                            `);
+                        });
+                        $('#stagesContainer').show();
+                    }
+                });
+            });
+
+            $('#extractDataButton').click(function() {
+                const url = $('#url').val();
+                const username = $('#username').val();
+                const password = $('#password').val();
+                const programId = $('#program').val();
+                const stageIds = $('input[name="stage_ids[]"]:checked').map(function() {
+                    return $(this).val();
+                }).get();
+                
+                $.post('/extract', { url, username, password, program_id: programId, stage_ids: stageIds, metadata: ['Attributes', 'Data elements', 'Program Indicators', 'Option Sets'] }, function(response) {
+                    if (response.error) {
+                        alert('Error: ' + response.error);
+                    } else {
+                        const blob = new Blob([response], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+                        const link = document.createElement('a');
+                        link.href = window.URL.createObjectURL(blob);
+                        link.download = 'metadata.xlsx';
+                        link.click();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 </html>

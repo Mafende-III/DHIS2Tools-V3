@@ -1,77 +1,93 @@
-{% extends "base.html" %}
-
-{% block content %}
-<div class="container mt-5">
-    <h2>Select Stages and Metadata</h2>
-
-    <!-- Stage and Metadata Selection Form -->
-    <form action="{{ url_for('stages.extract') }}" method="POST">
-        <!-- DHIS2 URL, Username, Password Fields -->
-        <div class="form-group">
-            <label for="url">DHIS2 URL:</label>
-            <input type="text" class="form-control" id="url" name="url" required>
-        </div>
-        <div class="form-group">
-            <label for="username">Username:</label>
-            <input type="text" class="form-control" id="username" name="username" required>
-        </div>
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <input type="password" class="form-control" id="password" name="password" required>
-        </div>
-        <div class="form-group">
-            <label for="program_id">Program ID:</label>
-            <input type="text" class="form-control" id="program_id" name="program_id" required>
-        </div>
-
-        <!-- Stages Selection -->
-        <div class="form-group">
-            <label>Stages:</label>
-            {% for name, id in stages.items() %}
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="stage_ids[]" value="{{ id }}" id="stage_{{ id }}">
-                <label class="form-check-label" for="stage_{{ id }}">
-                    {{ name }}
-                </label>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Stages</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+        body {
+            background-color: #e3f2fd;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        .btn-primary {
+            background-color: #0288d1;
+            border-color: #0288d1;
+        }
+        .btn-primary:hover {
+            background-color: #0277bd;
+            border-color: #0277bd;
+        }
+        .form-check-input:checked {
+            background-color: #0288d1;
+            border-color: #0288d1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Select Stages and Metadata</h1>
+        <form action="/extract" method="post">
+            <div class="form-group">
+                <label for="url">DHIS2 URL:</label>
+                <input type="text" class="form-control" id="url" name="url" required>
             </div>
-            {% endfor %}
-        </div>
-
-        <!-- Metadata Types Selection -->
-        <div class="form-group">
-            <label>Metadata Types:</label>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Attributes" id="attributes">
-                <label class="form-check-label" for="attributes">
-                    Attributes
-                </label>
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" class="form-control" id="username" name="username" required>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Data Elements" id="data_elements">
-                <label class="form-check-label" for="data_elements">
-                    Data Elements
-                </label>
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" class="form-control" id="password" name="password" required>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Program Indicators" id="program_indicators">
-                <label class="form-check-label" for="program_indicators">
-                    Program Indicators
-                </label>
+            <div class="form-group">
+                <label for="program_id">Program ID:</label>
+                <input type="text" class="form-control" id="program_id" name="program_id" required>
             </div>
-            <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Option Sets" id="option_sets">
-                <label class="form-check-label" for="option_sets">
-                    Option Sets
-                </label>
+            <div class="form-group">
+                <label>Stages:</label>
+                {% for name, id in stages.items() %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="stage_ids[]" value="{{ id }}" id="stage_{{ id }}">
+                    <label class="form-check-label" for="stage_{{ id }}">
+                        {{ name }}
+                    </label>
+                </div>
+                {% endfor %}
             </div>
-        </div>
-
-        <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Extract Data</button>
-    </form>
-
-    <!-- Go Back to Tools Button -->
-    <br>
-    <a href="{{ url_for('tools.index') }}" class="btn btn-secondary mt-3">Go Back to Tools</a>
-</div>
-{% endblock %}
+            <div class="form-group">
+                <label>Metadata Types:</label>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Attributes" id="attributes">
+                    <label class="form-check-label" for="attributes">
+                        Attributes
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Data Elements" id="data_elements">
+                    <label class="form-check-label" for="data_elements">
+                        Data Elements
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Program Indicators" id="program_indicators">
+                    <label class="form-check-label" for="program_indicators">
+                        Program Indicators
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="metadata_types[]" value="Option Sets" id="option_sets">
+                    <label class="form-check-label" for="option_sets">
+                        Option Sets
+                    </label>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Extract Data</button>
+        </form>
+        <br>
+        <a href="/tools" class="btn btn-secondary">Go Back to Tools</a>
+    </div>
+</body>
+</html>
