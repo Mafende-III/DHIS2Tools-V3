@@ -1,0 +1,87 @@
+{
+    "organisationUnitGroups": [
+        {
+            "id": "llJtNYUef8Z",
+            "name": "Secondary Care",
+            "shortName": "Secondary",
+            "code": "SC",
+            "organisationUnits": [
+                {
+                    "id": "K2Ma05oPvea"
+                },
+                {
+                    "id": "GjwHSnZtIDv"
+                },
+                {
+                    "id": "m5siT5YGdaW"
+                },
+                {
+                    "id": "tNKrw7TRSZP"
+                },
+                {
+                    "id": "lgH3yUFktx0"
+                },
+                {
+                    "id": "NnD9ym6Tggx"
+                },
+                {
+                    "id": "Si2GDrXLhMT"
+                },
+                {
+                    "id": "fx1ncCpmJ4a"
+                },
+                {
+                    "id": "lUh2MmxPKPw"
+                },
+                {
+                    "id": "vUoldIoMhc0"
+                },
+                {
+                    "id": "cLKCXa8QsEd"
+                },
+                {
+                    "id": "mSDoHkAtCI8"
+                },
+                {
+                    "id": "IknVgWqQfA9"
+                },
+                {
+                    "id": "Z6DOa72lW3v"
+                },
+                {
+                    "id": "skB9gXNxIvk"
+                },
+                {
+                    "id": "KLOTAwMe13e"
+                },
+                {
+                    "id": "BeKoD1fLmbs"
+                },
+                {
+                    "id": "FXD7sbitAfL"
+                },
+                {
+                    "id": "Y13Z4YOP7xn"
+                },
+                {
+                    "id": "t0INnnFFBwa"
+                },
+                {
+                    "id": "UDHgKb89F3q"
+                },
+                {
+                    "id": "w7VqFeHmCut"
+                },
+                {
+                    "id": "fFkRedQCVVi"
+                },
+                {
+                    "id": "eTfbhwX3FN7"
+                },
+                {
+                    "id": "UxCKl8u8KDq"
+                }
+            ]
+        }
+    ]
+}

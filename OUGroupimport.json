@@ -1,0 +1,19 @@
+{
+    "organisationUnitGroups": [
+    {
+        "name": "Secondary Care",
+        "shortName": "Secondary Care",
+        "code": "SC",
+        "id": "llJtNYUef8Z",
+        "organisationUnits": [
+            { "id": "K2Ma05oPvea" },
+            { "id": "GjwHSnZtIDv" },
+            { "id": "m5siT5YGdaW" },
+            { "id": "tNKrw7TRSZP" },
+            { "id": "lgH3yUFktx0" },
+            { "id": "NnD9ym6Tggx" }
+
+        ]
+    }
+]
+}
