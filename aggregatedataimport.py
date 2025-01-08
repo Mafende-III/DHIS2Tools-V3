@@ -1,11 +1,48 @@
 import csv
+import json
 import requests
 from PyQt5.QtWidgets import (
     QApplication, QMainWindow, QPushButton, QLineEdit, QLabel, QVBoxLayout, QWidget,
     QFileDialog, QComboBox, QProgressBar, QMessageBox, QTextEdit
 )
-from PyQt5.QtGui import QPalette, QColor
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QThread, pyqtSignal
+
+
+class ImportWorker(QThread):
+    progress = pyqtSignal(int)  # Signal to update the progress bar
+    error = pyqtSignal(str)     # Signal to show an error message
+    success = pyqtSignal()      # Signal when the import is successful
+
+    def __init__(self, url, auth, payload, batch_size):
+        super().__init__()
+        self.url = url
+        self.auth = auth
+        self.payload = payload
+        self.batch_size = batch_size
+
+    def run(self):
+        """Perform the import process in a background thread."""
+        total_batches = (len(self.payload) + self.batch_size - 1) // self.batch_size
+        for i in range(total_batches):
+            batch = self.payload[i * self.batch_size:(i + 1) * self.batch_size]
+            payload = {"dataValues": batch}
+
+            try:
+                response = requests.post(
+                    f"{self.url}/api/dataValueSets",
+                    auth=self.auth,
+                    json=payload
+                )
+                response.raise_for_status()
+            except requests.RequestException as e:
+                self.error.emit(f"Failed to import batch {i + 1}: {str(e)}\nResponse: {response.text}")
+                return
+
+            # Emit progress update
+            self.progress.emit(i + 1)
+
+        # Emit success signal
+        self.success.emit()
 
 
 class DHIS2Importer(QMainWindow):
@@ -78,12 +115,13 @@ class DHIS2Importer(QMainWindow):
         self.csv_file_path = None
         self.dataset_id = None
         self.payload = []
+        self.worker = None
 
     def verify_credentials(self):
         """Verify the provided DHIS2 credentials and fetch datasets."""
-        url = self.url_input.text()
-        username = self.username_input.text()
-        password = self.password_input.text()
+        url = self.url_input.text().strip()
+        username = self.username_input.text().strip()
+        password = self.password_input.text().strip()
 
         if not url.startswith("http"):
             QMessageBox.warning(self, "Invalid URL", "Please provide a valid DHIS2 URL.")
@@ -131,22 +169,30 @@ class DHIS2Importer(QMainWindow):
             return
 
         try:
-            with open(self.csv_file_path, "r") as csv_file:
+            with open(self.csv_file_path, "r", encoding="utf-8") as csv_file:
                 reader = csv.DictReader(csv_file)
                 rows = list(reader)
 
             self.payload = [
                 {
-                    "dataElement": row["Data Element"],
-                    "period": row["Period"],
-                    "orgUnit": row["Organisation Unit"],
-                    "value": row["Value"]
+                    "dataElement": row["Data Element"].strip(),
+                    "period": row["Period"].strip(),
+                    "orgUnit": row["Organisation Unit"].strip(),
+                    "value": row["Value"].strip()
                 }
                 for row in rows
+                if row["Data Element"].strip() and row["Period"].strip()
+                and row["Organisation Unit"].strip() and row["Value"].strip()
             ]
 
-            self.payload_preview.setText(str({"dataValues": self.payload}))
+            if not self.payload:
+                QMessageBox.warning(self, "Invalid File", "No valid rows found in the CSV file.")
+                return
+
+            self.payload_preview.setText(json.dumps({"dataValues": self.payload}, indent=4))
             self.import_button.setEnabled(True)
+        except KeyError as e:
+            QMessageBox.critical(self, "Error", f"Missing required column: {str(e)}")
         except Exception as e:
             QMessageBox.critical(self, "Error", f"Failed to process file: {str(e)}")
 
@@ -156,32 +202,28 @@ class DHIS2Importer(QMainWindow):
             QMessageBox.warning(self, "No Payload", "Please generate a payload before importing.")
             return
 
-        url = self.url_input.text()
-        username = self.username_input.text()
-        password = self.password_input.text()
+        url = self.url_input.text().strip()
+        username = self.username_input.text().strip()
+        password = self.password_input.text().strip()
 
-        batch_size = 50
-        total_batches = (len(self.payload) + batch_size - 1) // batch_size
+        self.worker = ImportWorker(url, (username, password), self.payload, batch_size=50)
+        self.worker.progress.connect(self.update_progress)
+        self.worker.error.connect(self.show_error)
+        self.worker.success.connect(self.show_success)
 
-        self.progress_bar.setMaximum(total_batches)
+        self.progress_bar.setMaximum((len(self.payload) + 49) // 50)
+        self.worker.start()
 
-        for i in range(total_batches):
-            batch = self.payload[i * batch_size:(i + 1) * batch_size]
-            payload = {"dataValues": batch}
+    def update_progress(self, value):
+        """Update the progress bar."""
+        self.progress_bar.setValue(value)
 
-            try:
-                response = requests.post(
-                    f"{url}/api/dataValueSets",
-                    auth=(username, password),
-                    json=payload
-                )
-                response.raise_for_status()
-            except requests.RequestException as e:
-                QMessageBox.critical(self, "Error", f"Failed to import batch {i + 1}: {str(e)}")
-                return
+    def show_error(self, message):
+        """Display an error message."""
+        QMessageBox.critical(self, "Error", message)
 
-            self.progress_bar.setValue(i + 1)
-
+    def show_success(self):
+        """Display a success message."""
         QMessageBox.information(self, "Success", "Data imported successfully!")
 
 
